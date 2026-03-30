@@ -15,14 +15,14 @@
       "metadata": {
         "description": "URL to the bot deployment package (this will be provided by your vendor)"
       },
-      "defaultValue": "https://databackstorage.blob.core.windows.net/teamsdeploymentpranjal/deployment-package.zip?sp=r&st=2026-03-30T07:04:47Z&se=2026-08-13T15:19:47Z&spr=https&sv=2024-11-04&sr=b&sig=fWyrGUNCCEUAWH3qV6dzpfCZCkNrBX8ooqC2bwhDwt4%3D"
+      "defaultValue": "https://YOUR_STORAGE_ACCOUNT.blob.core.windows.net/YOUR_CONTAINER/deployment-package.zip?YOUR_SAS_TOKEN"
     },
     "botDisplayName": {
       "type": "string",
       "metadata": {
         "description": "Display name for your bot in Microsoft Teams"
       },
-      "defaultValue": "AI Assistant Bot"
+      "defaultValue": "AI Assistant"
     },
     "azureOpenAIEndpoint": {
       "type": "securestring",
@@ -64,9 +64,40 @@
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]",
+      "defaultValue": "East US",
+      "allowedValues": [
+        "East US",
+        "East US 2", 
+        "West US",
+        "West US 2",
+        "Central US",
+        "North Central US",
+        "South Central US",
+        "West Central US",
+        "Canada Central",
+        "Canada East",
+        "Brazil South",
+        "North Europe",
+        "West Europe",
+        "UK South",
+        "UK West",
+        "France Central",
+        "Germany West Central",
+        "Norway East",
+        "Switzerland North",
+        "Southeast Asia",
+        "East Asia",
+        "Australia East",
+        "Australia Southeast",
+        "Central India",
+        "South India",
+        "Japan East",
+        "Japan West",
+        "Korea Central",
+        "Korea South"
+      ],
       "metadata": {
-        "description": "Location for all resources"
+        "description": "Location for all resources. Choose the region closest to your users."
       }
     }
   },
