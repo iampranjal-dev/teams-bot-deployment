@@ -185,7 +185,6 @@
       ],
       "properties": {
         "channelName": "MsTeamsChannel",
-        "location": "global",
         "properties": {
           "isEnabled": true
         }
