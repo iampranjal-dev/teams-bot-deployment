@@ -61,6 +61,13 @@
       "metadata": {
         "description": "The SKU of the App Service Plan (F1=Free, B1=Basic, S1=Standard, P1=Premium)"
       }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
     }
   },
   "variables": {
@@ -74,13 +81,13 @@
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2023-01-31",
       "name": "[variables('identityName')]",
-      "location": "[resourceGroup().location]"
+      "location": "[parameters('location')]"
     },
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2021-02-01",
       "name": "[variables('serverfarmsName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "kind": "app",
       "sku": {
         "name": "[parameters('webAppSKU')]"
@@ -90,7 +97,7 @@
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
       "name": "[variables('webAppName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', variables('serverfarmsName'))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]"
