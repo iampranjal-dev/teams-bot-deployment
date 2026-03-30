@@ -15,7 +15,7 @@
       "metadata": {
         "description": "URL to the bot deployment package (this will be provided by your vendor)"
       },
-      "defaultValue": "https://databackstorage.blob.core.windows.net/teamsdeploymentpranjal/deployment-package.zip?sp=r&st=2026-03-30T07:04:47Z&se=2026-08-13T15:19:47Z&spr=https&sv=2024-11-04&sr=b&sig=fWyrGUNCCEUAWH3qV6dzpfCZCkNrBX8ooqC2bwhDwt4%3D"
+      "defaultValue": "https://attach2dynamicsadlsgen2.blob.core.windows.net/aibotagent/deployment-package.zip?sp=r&st=2026-03-30T09:48:36Z&se=2026-11-01T18:03:36Z&spr=https&sv=2024-11-04&sr=b&sig=2ueJeD11IxdmYaSsi%2FGuYZeaM3LwDCU%2B6Ho4unGoL4E%3D"
     },
     "botDisplayName": {
       "type": "string",
