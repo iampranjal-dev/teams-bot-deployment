@@ -15,14 +15,14 @@
       "metadata": {
         "description": "URL to the bot deployment package (this will be provided by your vendor)"
       },
-      "defaultValue": "https://YOUR_STORAGE_ACCOUNT.blob.core.windows.net/YOUR_CONTAINER/deployment-package.zip?YOUR_SAS_TOKEN"
+      "defaultValue": "https://databackstorage.blob.core.windows.net/teamsdeploymentpranjal/deployment-package.zip?sp=r&st=2026-03-30T07:04:47Z&se=2026-08-13T15:19:47Z&spr=https&sv=2024-11-04&sr=b&sig=fWyrGUNCCEUAWH3qV6dzpfCZCkNrBX8ooqC2bwhDwt4%3D"
     },
     "botDisplayName": {
       "type": "string",
       "metadata": {
         "description": "Display name for your bot in Microsoft Teams"
       },
-      "defaultValue": "AI Assistant"
+      "defaultValue": "AI Assistant Bot"
     },
     "azureOpenAIEndpoint": {
       "type": "securestring",
@@ -67,7 +67,7 @@
       "defaultValue": "East US",
       "allowedValues": [
         "East US",
-        "East US 2", 
+        "East US 2",
         "West US",
         "West US 2",
         "Central US",
