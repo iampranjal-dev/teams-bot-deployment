@@ -1,111 +1,153 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Complete Teams AI Agent with RAG capabilities using SharePoint data",
+    "author": "ISV Solution Package"
+  },
   "parameters": {
     "resourceBaseName": {
       "type": "string",
       "minLength": 4,
       "maxLength": 20,
       "metadata": {
-        "description": "Base name for all resources (will be used to generate unique names)"
+        "description": "Used to generate names for all resources in this template"
       }
     },
     "deploymentPackageUrl": {
       "type": "securestring",
       "metadata": {
-        "description": "URL to the bot deployment package (this will be provided by your vendor)"
-      },
-      "defaultValue": "https://attach2dynamicsadlsgen2.blob.core.windows.net/aibotagent/deployment-package.zip?sp=r&st=2026-03-30T09:48:36Z&se=2026-11-01T18:03:36Z&spr=https&sv=2024-11-04&sr=b&sig=2ueJeD11IxdmYaSsi%2FGuYZeaM3LwDCU%2B6Ho4unGoL4E%3D"
+        "description": "URL to the deployment package zip file (with SAS token if using Azure Storage)"
+      }
     },
     "botDisplayName": {
       "type": "string",
+      "maxLength": 42,
       "metadata": {
-        "description": "Display name for your bot in Microsoft Teams"
-      },
-      "defaultValue": "AI Assistant Bot"
-    },
-    "azureOpenAIEndpoint": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Your Azure OpenAI endpoint URL (e.g., https://yourname.openai.azure.com/)"
+        "description": "Display name for the bot in Teams"
       }
     },
-    "azureOpenAIKey": {
-      "type": "securestring",
+    "location": {
+      "type": "string",
+      "allowedValues": [
+        "eastus",
+        "eastus2", 
+        "westus2",
+        "westeurope",
+        "northeurope",
+        "canadacentral",
+        "australiaeast",
+        "japaneast",
+        "uksouth",
+        "francecentral",
+        "switzerlandnorth",
+        "swedencentral"
+      ],
       "metadata": {
-        "description": "Your Azure OpenAI API key"
-      }
-    },
-    "azureOpenAIDeploymentName": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Your Azure OpenAI model deployment name (e.g., gpt-4, gpt-35-turbo)"
+        "description": "Location for all resources. Must be a region that supports both Azure OpenAI and Azure AI Search services."
       }
     },
     "webAppSKU": {
       "type": "string",
       "defaultValue": "B1",
-      "allowedValues": [
-        "F1",
-        "D1",
-        "B1",
-        "B2",
-        "B3",
-        "S1",
-        "S2",
-        "S3",
-        "P1",
-        "P2",
-        "P3"
-      ],
+      "allowedValues": ["B1", "B2", "S1", "S2", "P1v2", "P2v2"],
       "metadata": {
-        "description": "The SKU of the App Service Plan (F1=Free, B1=Basic, S1=Standard, P1=Premium)"
+        "description": "SKU for the App Service Plan"
       }
     },
-    "location": {
+    "azureOpenAIModelDeploymentName": {
       "type": "string",
-      "defaultValue": "East US",
+      "defaultValue": "gpt-4o",
+      "metadata": {
+        "description": "Name for the Azure OpenAI GPT model deployment"
+      }
+    },
+    "azureOpenAIEmbeddingDeploymentName": {
+      "type": "string",
+      "defaultValue": "text-embedding-3-small",
+      "metadata": {
+        "description": "Name for the Azure OpenAI embedding model deployment"
+      }
+    },
+    "azureOpenAIModelName": {
+      "type": "string",
+      "defaultValue": "gpt-4o",
+      "allowedValues": ["gpt-4o", "gpt-4", "gpt-4-turbo", "gpt-35-turbo"],
+      "metadata": {
+        "description": "Azure OpenAI GPT model name - latest stable models"
+      }
+    },
+    "azureOpenAIEmbeddingModelName": {
+      "type": "string",
+      "defaultValue": "text-embedding-3-small",
+      "metadata": {
+        "description": "Azure OpenAI embedding model name"
+      }
+    },
+    "azureOpenAIModelVersion": {
+      "type": "string",
+      "defaultValue": "2024-11-20",
       "allowedValues": [
-        "East US",
-        "East US 2",
-        "West US",
-        "West US 2",
-        "Central US",
-        "North Central US",
-        "South Central US",
-        "West Central US",
-        "Canada Central",
-        "Canada East",
-        "Brazil South",
-        "North Europe",
-        "West Europe",
-        "UK South",
-        "UK West",
-        "France Central",
-        "Germany West Central",
-        "Norway East",
-        "Switzerland North",
-        "Southeast Asia",
-        "East Asia",
-        "Australia East",
-        "Australia Southeast",
-        "Central India",
-        "South India",
-        "Japan East",
-        "Japan West",
-        "Korea Central",
-        "Korea South"
+        "2024-11-20"
       ],
       "metadata": {
-        "description": "Location for all resources. Choose the region closest to your users."
+        "description": "Azure OpenAI GPT model version - current supported versions"
+      }
+    },
+    "azureOpenAIEmbeddingModelVersion": {
+      "type": "string",
+      "defaultValue": "1",
+      "metadata": {
+        "description": "Azure OpenAI embedding model version"
+      }
+    },
+    "azureSearchSKU": {
+      "type": "string",
+      "defaultValue": "basic",
+      "allowedValues": ["free", "basic", "standard", "standard2", "standard3"],
+      "metadata": {
+        "description": "SKU for the Azure AI Search service"
+      }
+    },
+    "sharePointSiteUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "SharePoint site URL (e.g., https://yourtenant.sharepoint.com/sites/yoursite)"
+      }
+    },
+    "sharePointClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "Client ID of the Azure AD App Registration for SharePoint access"
+      }
+    },
+    "sharePointClientSecret": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Client Secret of the Azure AD App Registration for SharePoint access"
+      }
+    },
+    "azureTenantId": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure AD Tenant ID for SharePoint authentication"
+      }
+    },
+    "sharePointListName": {
+      "type": "string",
+      "defaultValue": "Documents",
+      "metadata": {
+        "description": "SharePoint document library/list name to index (optional, defaults to Documents)"
       }
     }
   },
   "variables": {
+    "azureOpenAIResourceName": "[concat(parameters('resourceBaseName'), '-openai')]",
+    "azureSearchServiceName": "[concat(parameters('resourceBaseName'), '-search')]",
     "serverfarmsName": "[parameters('resourceBaseName')]",
     "webAppName": "[parameters('resourceBaseName')]",
     "identityName": "[parameters('resourceBaseName')]",
-    "botName": "[parameters('resourceBaseName')]"
+    "searchIndexName": "sharepoint-documents"
   },
   "resources": [
     {
@@ -113,6 +155,84 @@
       "apiVersion": "2023-01-31",
       "name": "[variables('identityName')]",
       "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('azureOpenAIResourceName')]",
+      "location": "[parameters('location')]",
+      "kind": "OpenAI",
+      "sku": {
+        "name": "S0"
+      },
+      "properties": {
+        "apiProperties": {
+          "statisticsEnabled": false
+        },
+        "customSubDomainName": "[toLower(variables('azureOpenAIResourceName'))]"
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2023-05-01",
+      "name": "[concat(variables('azureOpenAIResourceName'), '/', parameters('azureOpenAIModelDeploymentName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('azureOpenAIResourceName'))]"
+      ],
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "[parameters('azureOpenAIModelName')]",
+          "version": "[parameters('azureOpenAIModelVersion')]"
+        }
+      },
+      "sku": {
+        "name": "Standard",
+        "capacity": 15
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2023-05-01",
+      "name": "[concat(variables('azureOpenAIResourceName'), '/', parameters('azureOpenAIEmbeddingDeploymentName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('azureOpenAIResourceName'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('azureOpenAIResourceName'), parameters('azureOpenAIModelDeploymentName'))]"
+      ],
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "[parameters('azureOpenAIEmbeddingModelName')]",
+          "version": "[parameters('azureOpenAIEmbeddingModelVersion')]"
+        }
+      },
+      "sku": {
+        "name": "Standard",
+        "capacity": 3
+      }
+    },
+    {
+      "type": "Microsoft.Search/searchServices",
+      "apiVersion": "2023-11-01",
+      "name": "[variables('azureSearchServiceName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('azureSearchSKU')]"
+      },
+      "properties": {
+        "replicaCount": 1,
+        "partitionCount": 1,
+        "hostingMode": "default",
+        "publicNetworkAccess": "enabled",
+        "networkRuleSet": {
+          "ipRules": []
+        },
+        "disableLocalAuth": false,
+        "authOptions": {
+          "apiKeyOnly": {}
+        },
+        "semanticSearch": "[if(equals(parameters('azureSearchSKU'), 'basic'), null(), 'free')]"
+      }
     },
     {
       "type": "Microsoft.Web/serverfarms",
@@ -129,11 +249,15 @@
       "apiVersion": "2021-02-01",
       "name": "[variables('webAppName')]",
       "location": "[parameters('location')]",
+      "kind": "app",
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', variables('serverfarmsName'))]",
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('azureOpenAIResourceName'))]",
+        "[resourceId('Microsoft.Search/searchServices', variables('azureSearchServiceName'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('azureOpenAIResourceName'), parameters('azureOpenAIModelDeploymentName'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('azureOpenAIResourceName'), parameters('azureOpenAIEmbeddingDeploymentName'))]"
       ],
-      "kind": "app",
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
@@ -168,15 +292,51 @@
             },
             {
               "name": "AZURE_OPENAI_API_KEY",
-              "value": "[parameters('azureOpenAIKey')]"
+              "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('azureOpenAIResourceName')), '2023-05-01').key1]"
             },
             {
               "name": "AZURE_OPENAI_ENDPOINT",
-              "value": "[parameters('azureOpenAIEndpoint')]"
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('azureOpenAIResourceName'))).endpoint]"
             },
             {
               "name": "AZURE_OPENAI_DEPLOYMENT_NAME",
-              "value": "[parameters('azureOpenAIDeploymentName')]"
+              "value": "[parameters('azureOpenAIModelDeploymentName')]"
+            },
+            {
+              "name": "AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME",
+              "value": "[parameters('azureOpenAIEmbeddingDeploymentName')]"
+            },
+            {
+              "name": "AZURE_SEARCH_ENDPOINT",
+              "value": "[concat('https://', variables('azureSearchServiceName'), '.search.windows.net')]"
+            },
+            {
+              "name": "AZURE_SEARCH_KEY",
+              "value": "[listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('azureSearchServiceName')), '2023-11-01').primaryKey]"
+            },
+            {
+              "name": "AZURE_SEARCH_INDEX_NAME",
+              "value": "[variables('searchIndexName')]"
+            },
+            {
+              "name": "SHAREPOINT_SITE_URL",
+              "value": "[parameters('sharePointSiteUrl')]"
+            },
+            {
+              "name": "SHAREPOINT_CLIENT_ID",
+              "value": "[parameters('sharePointClientId')]"
+            },
+            {
+              "name": "SHAREPOINT_CLIENT_SECRET",
+              "value": "[parameters('sharePointClientSecret')]"
+            },
+            {
+              "name": "AZURE_TENANT_ID",
+              "value": "[parameters('azureTenantId')]"
+            },
+            {
+              "name": "SHAREPOINT_LIST_NAME",
+              "value": "[parameters('sharePointListName')]"
             }
           ],
           "ftpsState": "FtpsOnly"
@@ -185,8 +345,8 @@
     },
     {
       "type": "Microsoft.BotService/botServices",
-      "apiVersion": "2021-03-01",
-      "name": "[variables('botName')]",
+      "apiVersion": "2022-09-15",
+      "name": "[parameters('resourceBaseName')]",
       "location": "global",
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', variables('webAppName'))]",
@@ -204,20 +364,20 @@
         "msaAppId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))).clientId]",
         "msaAppMSIResourceId": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]",
         "msaAppTenantId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))).tenantId]",
-        "schemaTransformationVersion": "1.3"
+        "publishingCredentials": null,
+        "storageResourceId": null
       }
     },
     {
       "type": "Microsoft.BotService/botServices/channels",
-      "apiVersion": "2021-03-01",
-      "name": "[concat(variables('botName'), '/MsTeamsChannel')]",
+      "apiVersion": "2022-09-15",
+      "name": "[concat(parameters('resourceBaseName'), '/MsTeamsChannel')]",
       "location": "global",
       "dependsOn": [
-        "[resourceId('Microsoft.BotService/botServices', variables('botName'))]"
+        "[resourceId('Microsoft.BotService/botServices', parameters('resourceBaseName'))]"
       ],
       "properties": {
         "channelName": "MsTeamsChannel",
-        "location": "global",
         "properties": {
           "isEnabled": true
         }
@@ -229,13 +389,53 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))).clientId]"
     },
-    "botEndpoint": {
+    "botDomain": {
       "type": "string",
-      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('webAppName'))).defaultHostName)]"
+      "value": "[reference(resourceId('Microsoft.Web/sites', variables('webAppName'))).defaultHostName]"
+    },
+    "botTenantId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))).tenantId]"
+    },
+    "azureOpenAIEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('azureOpenAIResourceName'))).endpoint]"
+    },
+    "azureOpenAIResourceName": {
+      "type": "string",
+      "value": "[variables('azureOpenAIResourceName')]"
+    },
+    "azureOpenAIDeploymentName": {
+      "type": "string",
+      "value": "[parameters('azureOpenAIModelDeploymentName')]"
+    },
+    "azureOpenAIEmbeddingDeploymentName": {
+      "type": "string",
+      "value": "[parameters('azureOpenAIEmbeddingDeploymentName')]"
+    },
+    "azureSearchEndpoint": {
+      "type": "string",
+      "value": "[concat('https://', variables('azureSearchServiceName'), '.search.windows.net')]"
+    },
+    "azureSearchServiceName": {
+      "type": "string",
+      "value": "[variables('azureSearchServiceName')]"
+    },
+    "azureSearchIndexName": {
+      "type": "string",
+      "value": "[variables('searchIndexName')]"
     },
     "resourceGroupName": {
       "type": "string",
       "value": "[resourceGroup().name]"
+    },
+    "subscriptionId": {
+      "type": "string",
+      "value": "[subscription().subscriptionId]"
+    },
+    "webAppResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
     }
   }
 }
